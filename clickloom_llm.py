@@ -1,0 +1,79 @@
+import json 
+import os 
+from groq import Groq 
+from dotenv import load_dotenv
+import requests 
+
+
+load_dotenv()
+client = Groq(api_key= os.getenv("groq_api_key"))
+
+
+def llm(data):
+    try:
+        llm_prompt = f"""
+        You are a web threat analysis engine.
+
+        Analyze the following webpage data for signs of phishing, scams, malware, or suspicious intent. 
+        Based on the input below, extract security-relevant insights and return a JSON object ONLY — no extra text.
+
+        ---
+
+        INPUT DATA:
+
+        - Page Text:
+        {data["page_text"]}
+
+        - Script Sources:
+        {data["script_sources"]}
+
+        - Link Sources:
+        {data["link_sources"]}
+
+        ---
+
+        Your task is to return a security report in the following **JSON format** in this bracket :(
+  {{
+        "verdict": "<Safe / Suspicious / Malicious>",
+        "summary": "<A deep analyzed description/summary of what this page appears to be doing and checking how legit it is>",
+        "recommendations": "<An advice on what the user should do or what you will recommend the user do>",
+        "page_text_findings": {{
+            "suspicious_phrases": ["<list any suspicious phrases or keywords>"],
+            "phishing_indicators": <true/false>
+        }},
+        "script_analysis": {{
+            "total_scripts": <number>,
+            "external_scripts": <number>,
+            "suspicious_domains": ["<list domains if any>"],
+            "minified_or_encoded": <true/false>
+        }},
+        "link_analysis": {{
+            "total_links": <number>,
+            "external_links": <number>,
+            "redirect_services_used": ["<bit.ly>", "<t.co>", ...],
+            "phishing_like_links": ["<list if any links mimic legitimate services>"]
+        }},
+        "risk_score": <float score between 0 and 10>,
+        }} )
+
+        Strict rules:
+        - If no suspicious signs are found, fields should return empty lists or false, not null.
+        - Only return valid JSON — do NOT include markdown and nothing to enclose the output with like ''' or ```
+        """
+
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": llm_prompt}],
+            model="llama-3.3-70b-versatile",
+        )
+
+        output_f = chat_completion.choices[0].message.content.strip()
+
+        try:
+            return json.loads(output_f)
+        except json.JSONDecodeError as je:
+            return {"error": f"JSON parsing failed: {je}", "raw": output_f}
+        except KeyError as ke:
+            return {"error": f"Network Problems. Try again later "}
+
+    except Exception as e:
+        return {"error": f"LLM call failed: {e}"}
