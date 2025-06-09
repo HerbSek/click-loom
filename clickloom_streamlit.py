@@ -41,11 +41,11 @@ if analyze_button:
             data = results
             
             # Check if required keys exist
-            required_keys = ["verdict", "risk_score", "page_text_findings", "script_analysis", "link_analysis"]
-            missing_keys = [key for key in required_keys if key not in data]
-            if missing_keys:
-                st.error(f"Missing data in analysis results: {', '.join(missing_keys)}")
-                st.stop()
+            # required_keys = ["verdict", "risk_score", "page_text_findings", "script_analysis", "link_analysis"]
+            # missing_keys = [key for key in required_keys if key not in data]
+            # if missing_keys:
+            #     st.error(f"Missing data in analysis results: {', '.join(missing_keys)}")
+            #     st.stop()
                 
             # Top Metrics
             col1, col2, col3 = st.columns(3)
