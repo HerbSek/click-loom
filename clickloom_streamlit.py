@@ -34,7 +34,7 @@ if analyze_button:
             
             with st.status("Processing website data...") as status:
                 st.write("Analyzing website content...")
-                results = llm(data1)
+                results = data1
                 progress_bar.progress(100)
                 status.update(label="Analysis complete!", state="complete")
             
