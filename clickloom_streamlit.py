@@ -20,7 +20,7 @@ with col2:
 # Button to load JSON
 if analyze_button:
     # Define URL and payload from user input
-    url = "https://selenium-scraper-sayw.onrender.com/scrape"  # Replace with your actual API endpoint
+    url = "https://llm-z1kg.onrender.com/results"  # Replace with your actual API endpoint
     payload = {"link": user_input}
     
     progress_bar = st.progress(0)

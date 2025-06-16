@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, uvicorn 
+from fastapi import FastAPI, HTTPException 
 import json 
 import os 
 from groq import Groq 
@@ -9,7 +9,7 @@ app=FastAPI(title = "LLM GROQ API")
 
 load_dotenv()
 
-client = Groq(api_key= os.getenv("groq_api_key"))
+client = Groq(api_key= os.getenv("GROQ_API_KEY"))
 
 def llm(data):
     try:
@@ -79,3 +79,37 @@ def llm(data):
 
     except Exception as e:
         return {"error": f"LLM call failed: {e}"}
+
+
+def function_scrape(url,payload):
+    request = requests.get(url = url , params = payload)
+    my_request = request.json()
+    return my_request
+
+# ////////////////////////////////////////////////////////////////////////////////////////////
+
+@app.get("/healthy")
+async def function():
+    return {"message": "App is healthy"}
+
+
+@app.post("/call_llm")
+async def get_llm(data:dict):
+    my_data = llm(data)
+    if not my_data:
+        raise HTTPException(status_code = 404, detail="No data found")
+    return my_data
+
+@app.get("/results")
+async def llm_scraper(link:str):
+    url = "https://selenium-scraper-sayw.onrender.com/scrape" 
+    payload = {"link": link}
+    my_scrape = function_scrape(url,payload)
+    output = llm(my_scrape)
+    return output 
+
+
+
+
+
+
